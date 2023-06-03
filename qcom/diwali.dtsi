@@ -847,6 +847,11 @@
 			reg = <0x87>;
 			#clock-cells = <1>;
 		};
+
+		scmi_shared_rail: protocol@88 {
+			reg = <0x88>;
+			#clock-cells = <1>;
+		};
 	};
 
 	rimps_log: qcom,rimps_log@17d09c00 {
@@ -1362,6 +1367,7 @@
 				compatible = "qcom,memlat-mon";
 				qcom,cpulist = <&CPU4 &CPU5 &CPU6>;
 				qcom,cpufreq-memfreq-tbl =
+					<  300000  307200 >,
 					<  940800  537600 >,
 					< 1132800  748800 >,
 					< 1382400  979200 >,
@@ -1376,6 +1382,7 @@
 				compatible = "qcom,memlat-mon";
 				qcom,cpulist = <&CPU7>;
 				qcom,cpufreq-memfreq-tbl =
+					<  300000  307200 >,
 					< 1094400  537600 >,
 					< 1401600  748800 >,
 					< 1766400 1209600 >,
@@ -1491,8 +1498,18 @@
 		qcom,gpucc = <&gpucc>;
 		qcom,apsscc = <&apsscc>;
 		qcom,mccc = <&mccc>;
-		clock-names = "xo_clk_src";
-		clocks = <&rpmhcc RPMH_CXO_CLK>;
+		clocks = <&rpmhcc RPMH_CXO_CLK>,
+			<&gcc 0>,
+			<&camcc 0>,
+			<&dispcc 0>,
+			<&gpucc 0>,
+			<&videocc 0>;
+		clock-names = "xo_clk_src",
+				"gcc",
+				"camcc",
+				"dispcc",
+				"gpucc",
+				"videocc";
 		#clock-cells = <1>;
 	};
 
@@ -2018,13 +2035,15 @@
 				      <&adsp_smp2p_in 0 0>,
 				      <&adsp_smp2p_in 2 0>,
 				      <&adsp_smp2p_in 1 0>,
-				      <&adsp_smp2p_in 3 0>;
+				      <&adsp_smp2p_in 3 0>,
+				      <&adsp_smp2p_in 7 0>;
 
 		interrupt-names = "wdog",
 				  "fatal",
 				  "handover",
 				  "ready",
-				  "stop-ack";
+				  "stop-ack",
+				  "shutdown-ack";
 
 		qcom,smem-states = <&adsp_smp2p_out 0>;
 		qcom,smem-state-names = "stop";
@@ -2045,6 +2064,7 @@
 
 			qcom,adsp_qrtr {
 				qcom,glink-channels = "IPCRTR";
+				qcom,non-wake-svc = <0x190>;
 				qcom,intents = <0x800  5
 						0x2000 3
 						0x4400 2>;
@@ -2084,13 +2104,15 @@
 				      <&cdsp_smp2p_in 0 0>,
 				      <&cdsp_smp2p_in 2 0>,
 				      <&cdsp_smp2p_in 1 0>,
-				      <&cdsp_smp2p_in 3 0>;
+				      <&cdsp_smp2p_in 3 0>,
+				      <&cdsp_smp2p_in 7 0>;
 
 		interrupt-names = "wdog",
 				  "fatal",
 				  "handover",
 				  "ready",
-				  "stop-ack";
+				  "stop-ack",
+				  "shutdown-ack";
 
 		/* Outputs to turing */
 		qcom,smem-states = <&cdsp_smp2p_out 0>;
@@ -2231,15 +2253,13 @@
 				      <&wpss_smp2p_in 0 0>,
 				      <&wpss_smp2p_in 2 0>,
 				      <&wpss_smp2p_in 1 0>,
-				      <&wpss_smp2p_in 3 0>,
-				      <&wpss_smp2p_in 7 0>;
+				      <&wpss_smp2p_in 3 0>;
 
 		interrupt-names = "wdog",
 				   "fatal",
 				   "handover",
 				   "ready",
-				   "stop-ack",
-				   "shutdown-ack";
+				   "stop-ack";
 
 		/* Outputs to wpss */
 		qcom,smem-states = <&wpss_smp2p_out 0>;
@@ -2314,7 +2334,6 @@
 		qcom,iommu-dma-addr-pool = <0xa0000000 0x10000000>;
 		qcom,iommu-geometry = <0xa0000000 0x10010000>;
 		dma-coherent;
-		qcom,fw-prefix;
 		qcom,wlan;
 		tsens = "quiet-therm";
 		qcom,wlan-msa-fixed-region = <&wlan_fw_mem>;
@@ -2519,7 +2538,7 @@
 		interrupt-names = "hc_irq", "pwr_irq";
 
 		bus-width = <4>;
-		no-sdio;
+		//no-sdio;
 		no-mmc;
 		qcom,restore-after-cx-collapse;
 
@@ -3182,7 +3201,7 @@
 
 		/* SVS2 */
 		qcom,svs2 =
-		<590000 0 590000 1900000 0 76800>;
+		<0 0 0 1900000 0 76800>;
 
 		/* SVS */
 		qcom,svs =
@@ -3397,6 +3416,7 @@
 	clocks = <&gcc GCC_GPU_CFG_AHB_CLK>;
 	clock-names = "ahb_clk";
 	parent-supply = <&VDD_CX_LEVEL>;
+	qcom,clk-ctrl = <&gpucc 0x9130 22 1>;
 	status = "ok";
 };
 

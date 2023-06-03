@@ -70,6 +70,9 @@
 			snps,dis_u2_susphy_quirk;
 			snps,dis_u3_susphy_quirk;
 			snps,ssp-u3-u0-quirk;
+			//add by OPLUS_FEATURE_CHG_BASIC for mtp transplat speed
+			snps,usb2-gadget-lpm-disable;
+			// add end
 			tx-fifo-resize;
 			dr_mode = "otg";
 			maximum-speed = "super-speed-plus";
